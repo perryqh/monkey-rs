@@ -3,12 +3,24 @@ use std::fmt::{self, Formatter};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Eq, Hash, Ord, Serialize, Deserialize, PartialOrd, PartialEq)]
-enum TokenKind {
+pub struct Token<'a> {
+    pub kind: TokenKind,
+    pub literal: &'a str,
+}
+
+impl<'a> Token<'a> {
+    pub fn new(kind: TokenKind, literal: &'a str) -> Self {
+        Self { kind, literal }
+    }
+}
+
+#[derive(Clone, Debug, Eq, Hash, Ord, Serialize, Deserialize, PartialOrd, PartialEq)]
+pub enum TokenKind {
     Illegal,
     EOF,
 
     // Identifiers + literals
-    Identifier{name: String},
+    Identifier { name: String },
     INT(i64),
     STRING(String),
 
@@ -46,11 +58,6 @@ enum TokenKind {
     If,
     Else,
     Return,
-}
-#[derive(Clone, Debug, Eq, Hash, Ord, Serialize, Deserialize, PartialOrd, PartialEq)]
-struct Token {
-    ttype: TokenKind,
-    literal: String,
 }
 
 impl fmt::Display for TokenKind {
