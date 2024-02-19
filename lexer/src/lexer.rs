@@ -2,13 +2,13 @@ use std::{iter::Peekable, str::Chars};
 
 use crate::token::{Token, TokenKind};
 
-struct Lexer<'a> {
+pub struct Lexer<'a> {
     chars: Peekable<Chars<'a>>,
     current_token: Option<Token>,
 }
 
 impl<'a> Lexer<'a> {
-    fn new(input: &'a str) -> Self {
+    pub fn new(input: &'a str) -> Self {
         let chars = input.chars().peekable();
         Self {
             chars,
