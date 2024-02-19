@@ -16,27 +16,27 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn skip_whitespace(&mut self) {
+    fn consume_while<F>(&mut self, mut condition: F) -> String where F: FnMut(char) -> bool {
+        let mut result = String::new();
         while let Some(&c) = self.chars.peek() {
-            if c.is_whitespace() {
+            if condition(c) {
+                result.push(c);
                 self.chars.next();
             } else {
                 break;
             }
         }
+        result
+    }
+
+    fn skip_whitespace(&mut self) {
+        self.consume_while(|c| c.is_whitespace());
     }
 
     fn read_identifier(&mut self, initial_char: char) -> Token {
-        let mut literal = String::new();
-        literal.push(initial_char);
-        while let Some(&c) = self.chars.peek() {
-            if c.is_alphanumeric() || c == '_' {
-                literal.push(c);
-                self.chars.next();
-            } else {
-                break;
-            }
-        }
+        let mut literal = initial_char.to_string();
+        literal.push_str(&self.consume_while(|c| c.is_alphanumeric() || c == '_'));
+        
         match literal.as_str() {
             "let" => Token::new(TokenKind::Let),
             "fn" => Token::new(TokenKind::Function),
@@ -50,16 +50,8 @@ impl<'a> Lexer<'a> {
     }
 
     fn read_number(&mut self, initial_char: char) -> Token {
-        let mut literal = String::new();
-        literal.push(initial_char);
-        while let Some(&c) = self.chars.peek() {
-            if c.is_numeric() {
-                literal.push(c);
-                self.chars.next();
-            } else {
-                break;
-            }
-        }
+        let mut literal = initial_char.to_string();
+        literal.push_str(&self.consume_while(|c| c.is_numeric()));
         Token::new(TokenKind::INT(literal.parse().unwrap()))
     }
 
