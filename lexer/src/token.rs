@@ -3,14 +3,13 @@ use std::fmt::{self, Formatter};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Eq, Hash, Ord, Serialize, Deserialize, PartialOrd, PartialEq)]
-pub struct Token<'a> {
+pub struct Token {
     pub kind: TokenKind,
-    pub literal: &'a str,
 }
 
-impl<'a> Token<'a> {
-    pub fn new(kind: TokenKind, literal: &'a str) -> Self {
-        Self { kind, literal }
+impl Token {
+    pub fn new(kind: TokenKind) -> Self {
+        Self { kind }
     }
 }
 
