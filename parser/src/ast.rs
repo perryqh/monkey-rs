@@ -12,13 +12,26 @@ pub trait NodeTrait {
 #[derive(Debug, PartialEq)]
 pub enum Statement {
     Let(LetStatement),
+    Return(ReturnStatement),
 }
 
 impl NodeTrait for Statement {
     fn token_literal(&self) -> String {
         match self {
             Statement::Let(_) => "let".to_string(),
+            Statement::Return(_) => "return".to_string(),
         }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct ReturnStatement {
+    pub return_value: Expression,
+}
+
+impl NodeTrait for ReturnStatement {
+    fn token_literal(&self) -> String {
+        "return".to_string()
     }
 }
 
@@ -59,6 +72,12 @@ pub struct IntegerLiteral {
 #[derive(Debug, PartialEq)]
 pub struct Program {
     pub statements: Vec<Statement>,
+}
+
+impl Default for Program {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Program {

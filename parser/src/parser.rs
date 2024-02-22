@@ -5,7 +5,8 @@ use lexer::{
 };
 
 use crate::ast::{
-    Expression, Identifier, IntegerLiteral, LetStatement, NodeTrait, Program, Statement,
+    Expression, Identifier, IntegerLiteral, LetStatement, NodeTrait, Program, ReturnStatement,
+    Statement,
 };
 
 #[derive(Debug)]
@@ -39,35 +40,38 @@ impl Parser {
     fn parse_statement(&mut self) -> Result<Statement> {
         match self.current_token.as_ref().map(|t| &t.kind) {
             Some(TokenKind::Let) => self.parse_let_statement(),
+            Some(TokenKind::Return) => self.parse_return_statement(),
             _ => bail!("unrecognized token"),
         }
     }
 
+    fn parse_return_statement(&mut self) -> Result<Statement> {
+        self.expect_current_token()?;
+        self.next_token()?;
+        let value = self.parse_expression()?;
+        self.expect_peek(&TokenKind::Semicolon)?;
+        Ok(Statement::Return(ReturnStatement {
+            return_value: value,
+        }))
+    }
+
     fn parse_let_statement(&mut self) -> Result<Statement> {
-        let token = self
-            .current_token
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("expected token"))?;
+        self.expect_current_token()?;
         self.expect_identifier_peek()?;
         let name = self.parse_identifier()?;
         self.expect_peek(&TokenKind::Assign)?;
-
         self.next_token()?;
-        let value = Expression::IntegerLiteral(IntegerLiteral { value: 5 });
-        //let value = self.parse_expression()?;
+        let value = self.parse_expression()?;
         self.expect_peek(&TokenKind::Semicolon)?;
         Ok(Statement::Let(LetStatement { name, value }))
     }
 
-    fn parse_expression(&self) -> Result<()> {
-        Ok(())
+    fn parse_expression(&self) -> Result<Expression> {
+        Ok(Expression::IntegerLiteral(IntegerLiteral { value: 5 }))
     }
 
     fn parse_identifier(&self) -> Result<Identifier> {
-        let token = self
-            .current_token
-            .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("expected token"))?;
+        let token = self.expect_current_token()?;
         match &token.kind {
             TokenKind::Identifier { name } => Ok(Identifier {
                 value: name.clone(),
@@ -106,7 +110,7 @@ impl Parser {
             .peek_token()
             .ok_or_else(|| anyhow::anyhow!("expected token"))?;
         match &token.kind {
-            TokenKind::Identifier { name } => {
+            TokenKind::Identifier { name: _ } => {
                 self.next_token()?;
                 Ok(())
             }
@@ -119,7 +123,7 @@ impl Parser {
             self.next_token()?;
             Ok(())
         } else {
-            bail!("expected token {:?}, got {:?}", kind, "peek_token()");
+            bail!("expected token {:?}, got {:?}", kind, self.peek_token());
         }
     }
 
@@ -127,6 +131,12 @@ impl Parser {
         self.current_token
             .as_ref()
             .map_or(false, |t| t.kind == *kind)
+    }
+
+    fn expect_current_token(&self) -> Result<&Token> {
+        self.current_token
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("expected token"))
     }
 }
 
@@ -178,6 +188,23 @@ mod tests {
             };
             assert_eq!(let_stmt.name.value, *expected_identifier);
             assert_eq!(let_stmt.name.token_literal(), *expected_identifier);
+        }
+    }
+
+    #[test]
+    fn test_return_statements() {
+        let input = r#"
+            return 5;
+            return 10;
+            return 993322;
+        "#;
+        let lexer = Lexer::new(input);
+        let mut parser = Parser::new(lexer);
+        let program = parser.parse().unwrap();
+
+        assert_eq!(program.statements.len(), 3);
+        for stmt in program.statements {
+            assert_eq!(stmt.token_literal(), "return");
         }
     }
 }
