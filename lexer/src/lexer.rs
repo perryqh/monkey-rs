@@ -56,7 +56,7 @@ impl<'a> Lexer<'a> {
         Token::new(TokenKind::INT(literal.parse().unwrap()))
     }
 
-    fn next_token(&mut self) -> Option<Token> {
+    pub fn next_token(&mut self) -> Option<Token> {
         self.skip_whitespace();
         let next_char = self.chars.next()?;
         let token = match next_char {

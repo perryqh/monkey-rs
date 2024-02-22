@@ -1,6 +1,6 @@
 #[derive(Debug, PartialEq)]
 pub enum Node {
-    Program(Program), 
+    Program(Program),
     Statement(Statement),
     Expression(Expression),
 }
@@ -59,4 +59,12 @@ pub struct IntegerLiteral {
 #[derive(Debug, PartialEq)]
 pub struct Program {
     pub statements: Vec<Statement>,
+}
+
+impl Program {
+    pub fn new() -> Self {
+        Self {
+            statements: Vec::new(),
+        }
+    }
 }
