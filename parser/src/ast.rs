@@ -56,10 +56,6 @@ impl fmt::Display for BlockStatement {
     }
 }
 
-pub trait NodeTrait {
-    fn token_literal(&self) -> String;
-}
-
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub enum Statement {
     Expression(Expression),
@@ -81,39 +77,15 @@ impl fmt::Display for Statement {
     }
 }
 
-impl NodeTrait for Statement {
-    fn token_literal(&self) -> String {
-        match self {
-            Statement::Let(_) => "let".to_string(),
-            Statement::Return(_) => "return".to_string(),
-            Statement::Block(_) => "block".to_string(),
-            Statement::LetDereference(_) => "let dereference".to_string(),
-            Statement::Expression(expr) => "expression".to_string(),
-        }
-    }
-}
-
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct ReturnStatement {
     pub return_value: Expression,
-}
-
-impl NodeTrait for ReturnStatement {
-    fn token_literal(&self) -> String {
-        "return".to_string()
-    }
 }
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct LetStatement {
     pub name: Identifier,
     pub value: Expression,
-}
-
-impl NodeTrait for LetStatement {
-    fn token_literal(&self) -> String {
-        "let".to_string()
-    }
 }
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -136,12 +108,6 @@ pub struct Identifier {
 impl fmt::Display for Identifier {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.value.fmt(f)
-    }
-}
-
-impl NodeTrait for Identifier {
-    fn token_literal(&self) -> String {
-        self.value.clone()
     }
 }
 

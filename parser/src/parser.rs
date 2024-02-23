@@ -4,9 +4,7 @@ use lexer::{
     token::{Integer, Radix, Token, TokenKind},
 };
 
-use crate::ast::{
-    Expression, Identifier, LetStatement, NodeTrait, Program, ReturnStatement, Statement,
-};
+use crate::ast::{Expression, Identifier, LetStatement, Program, ReturnStatement, Statement};
 
 #[derive(Debug)]
 struct Parser {
@@ -181,7 +179,7 @@ mod tests {
         let expected_identifiers = vec!["x", "y", "foobar"];
         for (i, expected_identifier) in expected_identifiers.iter().enumerate() {
             let stmt = &program.statements[i];
-            assert_eq!(stmt.token_literal(), "let");
+            assert!(format!("{}", stmt).contains("let"));
             let let_stmt = if let Statement::Let(let_stmt) = stmt {
                 let_stmt
             } else {
@@ -189,7 +187,7 @@ mod tests {
                 continue; // This continue is technically unreachable, but included for clarity
             };
             assert_eq!(let_stmt.name.value, *expected_identifier);
-            assert_eq!(let_stmt.name.token_literal(), *expected_identifier);
+            assert_eq!(format!("{}", let_stmt.name), *expected_identifier);
         }
     }
 
@@ -206,7 +204,25 @@ mod tests {
 
         assert_eq!(program.statements.len(), 3);
         for stmt in program.statements {
-            assert_eq!(stmt.token_literal(), "return");
+            assert_eq!(format!("{}", stmt), "return 5;");
         }
+    }
+
+    #[test]
+    fn test_identifier_expression() {
+        let input = "foobar;";
+        let lexer = Lexer::new(input);
+        let mut parser = Parser::new(lexer);
+        let program = parser.parse().unwrap();
+
+        assert_eq!(program.statements.len(), 1);
+        let stmt = &program.statements[0];
+        let expression = if let Statement::Expression(expression) = stmt {
+            expression
+        } else {
+            assert!(false, "expected Expression statement");
+            return; // This return is technically unreachable, but included for clarity
+        };
+        assert_eq!(format!("{}", expression), "foobar");
     }
 }
