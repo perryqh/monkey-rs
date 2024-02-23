@@ -1,6 +1,6 @@
 use std::{iter::Peekable, str::Chars};
 
-use crate::token::{Token, TokenKind};
+use crate::token::{Integer, Radix, Token, TokenKind};
 
 #[derive(Debug)]
 pub struct Lexer<'a> {
@@ -46,14 +46,14 @@ impl<'a> Lexer<'a> {
             "if" => Token::new(TokenKind::If),
             "else" => Token::new(TokenKind::Else),
             "return" => Token::new(TokenKind::Return),
-            _ => Token::new(TokenKind::Identifier { name: literal }),
+            _ => Token::new(TokenKind::Identifier(literal)),
         }
     }
 
     fn read_number(&mut self, initial_char: char) -> Token {
         let mut literal = initial_char.to_string();
         literal.push_str(&self.consume_while(|c| c.is_numeric()));
-        Token::new(TokenKind::INT(literal.parse().unwrap()))
+        Token::new(TokenKind::Integer(Integer{value: literal.parse().unwrap(), radix: Radix::Decimal}))
     }
 
     pub fn next_token(&mut self) -> Option<Token> {
@@ -119,6 +119,8 @@ impl Iterator for Lexer<'_> {
 
 #[cfg(test)]
 mod tests {
+    use crate::token::{Integer, Radix};
+
     use super::*;
 
     #[test]
@@ -152,7 +154,7 @@ mod tests {
         let expected_tokens = vec![
             TokenKind::Assign,
             TokenKind::Plus,
-            TokenKind::INT(5),
+            TokenKind::Integer(Integer{value: 5, radix: Radix::Decimal}),
             TokenKind::Semicolon,
             TokenKind::EOF,
         ];
@@ -169,42 +171,28 @@ mod tests {
         let input = "let five = 5; let ten = 10; let add = fn(x, y) { x + y; };";
         let expected_tokens = vec![
             TokenKind::Let,
-            TokenKind::Identifier {
-                name: "five".to_string(),
-            },
+            TokenKind::Identifier("five".to_string()),
             TokenKind::Assign,
-            TokenKind::INT(5),
+            TokenKind::Integer(Integer{value: 5, radix: Radix::Decimal}),
             TokenKind::Semicolon,
             TokenKind::Let,
-            TokenKind::Identifier {
-                name: "ten".to_string(),
-            },
+            TokenKind::Identifier("ten".to_string()),
             TokenKind::Assign,
-            TokenKind::INT(10),
+            TokenKind::Integer(Integer{value: 10, radix: Radix::Decimal}),
             TokenKind::Semicolon,
             TokenKind::Let,
-            TokenKind::Identifier {
-                name: "add".to_string(),
-            },
+            TokenKind::Identifier("add".to_string()),
             TokenKind::Assign,
             TokenKind::Function,
             TokenKind::LParen,
-            TokenKind::Identifier {
-                name: "x".to_string(),
-            },
+            TokenKind::Identifier("x".to_string()),
             TokenKind::Comma,
-            TokenKind::Identifier {
-                name: "y".to_string(),
-            },
+            TokenKind::Identifier("y".to_string()),
             TokenKind::RParen,
             TokenKind::LBrace,
-            TokenKind::Identifier {
-                name: "x".to_string(),
-            },
+            TokenKind::Identifier("x".to_string()),
             TokenKind::Plus,
-            TokenKind::Identifier {
-                name: "y".to_string(),
-            },
+            TokenKind::Identifier("y".to_string()),
             TokenKind::Semicolon,
             TokenKind::RBrace,
             TokenKind::Semicolon,
@@ -224,9 +212,9 @@ mod tests {
         let expected_tokens = vec![
             TokenKind::If,
             TokenKind::LParen,
-            TokenKind::INT(5),
+            TokenKind::Integer(Integer { value: 5, radix: Radix::Decimal }),
             TokenKind::NotEq,
-            TokenKind::INT(10),
+            TokenKind::Integer(Integer{value: 10, radix: Radix::Decimal}),
             TokenKind::RParen,
             TokenKind::LBrace,
             TokenKind::Return,
@@ -236,9 +224,9 @@ mod tests {
             TokenKind::Else,
             TokenKind::If,
             TokenKind::LParen,
-            TokenKind::INT(3),
+            TokenKind::Integer(Integer{value: 3, radix: Radix::Decimal}),
             TokenKind::EQ,
-            TokenKind::INT(3),
+            TokenKind::Integer(Integer{value: 3, radix: Radix::Decimal}),
             TokenKind::RParen,
             TokenKind::LBrace,
             TokenKind::Return,

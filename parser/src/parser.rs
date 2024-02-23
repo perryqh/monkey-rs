@@ -1,12 +1,11 @@
 use anyhow::{bail, Result};
 use lexer::{
     lexer::Lexer,
-    token::{Token, TokenKind},
+    token::{Integer, Radix, Token, TokenKind},
 };
 
 use crate::ast::{
-    Expression, Identifier, IntegerLiteral, LetStatement, NodeTrait, Program, ReturnStatement,
-    Statement,
+    Expression, Identifier, LetStatement, NodeTrait, Program, ReturnStatement, Statement,
 };
 
 #[derive(Debug)]
@@ -67,13 +66,16 @@ impl Parser {
     }
 
     fn parse_expression(&self) -> Result<Expression> {
-        Ok(Expression::IntegerLiteral(IntegerLiteral { value: 5 }))
+        Ok(Expression::Integer(Integer {
+            value: 5,
+            radix: Radix::Decimal,
+        }))
     }
 
     fn parse_identifier(&self) -> Result<Identifier> {
         let token = self.expect_current_token()?;
         match &token.kind {
-            TokenKind::Identifier { name } => Ok(Identifier {
+            TokenKind::Identifier(name) => Ok(Identifier {
                 value: name.clone(),
             }),
             _ => bail!("expected Identifier token"),
@@ -110,7 +112,7 @@ impl Parser {
             .peek_token()
             .ok_or_else(|| anyhow::anyhow!("expected token"))?;
         match &token.kind {
-            TokenKind::Identifier { name: _ } => {
+            TokenKind::Identifier(_) => {
                 self.next_token()?;
                 Ok(())
             }

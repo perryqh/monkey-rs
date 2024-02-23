@@ -1,8 +1,6 @@
 use std::fmt::{self, Formatter};
 
-use serde::{Deserialize, Serialize};
-
-#[derive(Clone, Debug, Eq, Hash, Ord, Serialize, Deserialize, PartialOrd, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialOrd, PartialEq)]
 pub struct Token {
     pub kind: TokenKind,
 }
@@ -13,15 +11,16 @@ impl Token {
     }
 }
 
-#[derive(Clone, Debug, Eq, Hash, Ord, Serialize, Deserialize, PartialOrd, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialOrd, PartialEq)]
 pub enum TokenKind {
     Illegal,
     EOF,
 
     // Identifiers + literals
-    Identifier { name: String },
-    INT(i64),
-    STRING(String),
+    Identifier(String),
+    Integer(Integer),
+    Float(Float),
+    String(String),
 
     // Operators
     Assign,
@@ -30,6 +29,8 @@ pub enum TokenKind {
     Bang,
     Asterisk,
     Slash,
+    Percent,
+    Ampersand,
 
     LT,
     GT,
@@ -62,9 +63,10 @@ pub enum TokenKind {
 impl fmt::Display for TokenKind {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
-            TokenKind::Identifier { name } => write!(f, "{}", name),
-            TokenKind::INT(i) => write!(f, "{}", i),
-            TokenKind::STRING(s) => write!(f, "{}", s),
+            TokenKind::Identifier(name) => write!(f, "{}", name),
+            TokenKind::Integer(i) => write!(f, "{}", i),
+            TokenKind::Float(float) => write!(f, "{}", float),
+            TokenKind::String(s) => write!(f, "{}", s),
             TokenKind::Assign => write!(f, "="),
             TokenKind::Plus => write!(f, "+"),
             TokenKind::Minus => write!(f, "-"),
@@ -93,6 +95,60 @@ impl fmt::Display for TokenKind {
             TokenKind::Illegal => write!(f, "ILLEGAL"),
             TokenKind::EOF => write!(f, "EOF"),
             TokenKind::Colon => write!(f, ":"),
+            TokenKind::Percent => write!(f, "%"),
+            TokenKind::Ampersand => write!(f, "&"),
         }
+    }
+}
+
+/// An integer value and its associated radix.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Integer {
+    pub radix: Radix,
+    pub value: i64,
+}
+
+/// The radix or base of an `Integer`.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub enum Radix {
+    Binary,
+    Decimal,
+    Hexadecimal,
+    Octal,
+}
+
+impl fmt::Display for Integer {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.radix {
+            Radix::Binary => write!(f, "0b{:b}", self.value),
+            Radix::Decimal => write!(f, "{}", self.value),
+            Radix::Hexadecimal => write!(f, "0x{:x}", self.value),
+            Radix::Octal => write!(f, "0o{:o}", self.value),
+        }
+    }
+}
+
+/// A `f64` value stored as raw bits.
+#[derive(Clone, Copy, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct Float(pub u64);
+
+impl fmt::Display for Float {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let float: f64 = (*self).into();
+        write!(f, "{}", float)
+    }
+}
+
+/// Convert from `Float` into `f64`.
+impl From<f64> for Float {
+    fn from(f: f64) -> Self {
+        Self(f64::to_bits(f))
+    }
+}
+
+/// Convert from `f64` into `Float`.
+impl From<Float> for f64 {
+    fn from(f: Float) -> Self {
+        f64::from_bits(f.0)
     }
 }
