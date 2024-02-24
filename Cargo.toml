@@ -1,4 +1,4 @@
-workspace = { members = ["lexer"] }
+workspace = { members = ["lexer", "parser"] }
 [package]
 name = "monkey"
 version = "0.1.0"
