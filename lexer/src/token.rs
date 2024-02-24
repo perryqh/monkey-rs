@@ -1,4 +1,7 @@
-use std::{fmt::{self, Formatter}, str::FromStr};
+use std::{
+    fmt::{self, Formatter},
+    str::FromStr,
+};
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialOrd, PartialEq)]
 pub struct Token {

@@ -68,7 +68,8 @@ impl<'a> Lexer<'a> {
         literal.push_str(&self.consume_while(|c| c.is_numeric() || c == '.'));
         if literal.contains('.') {
             Token::new(TokenKind::Float(
-                literal.parse().unwrap_or_else(|_| Float::from(0.0))))
+                literal.parse().unwrap_or_else(|_| Float::from(0.0)),
+            ))
         } else {
             Token::new(TokenKind::Integer(Integer {
                 value: literal.parse().unwrap(),

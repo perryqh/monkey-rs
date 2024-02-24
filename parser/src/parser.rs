@@ -11,7 +11,7 @@ use crate::ast::{
 };
 
 #[derive(Debug)]
-struct Parser {
+pub struct Parser {
     peekable_tokens: std::iter::Peekable<std::vec::IntoIter<Token>>,
     current_token: Option<Token>,
 }
@@ -48,7 +48,7 @@ fn precedence_from_token(tok: &Token) -> Precedence {
 }
 
 impl Parser {
-    fn new(lexer: Lexer) -> Self {
+    pub fn new(lexer: Lexer) -> Self {
         let peekable_tokens = lexer.collect::<Vec<Token>>().into_iter().peekable();
         Self {
             peekable_tokens,
@@ -484,7 +484,7 @@ impl Parser {
     }
 
     fn current_token_is_not(&self, kind: &TokenKind) -> bool {
-       self.current_token
+        self.current_token
             .as_ref()
             .map_or(true, |t| t.kind != *kind)
     }
