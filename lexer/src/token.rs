@@ -1,4 +1,4 @@
-use std::fmt::{self, Formatter};
+use std::{fmt::{self, Formatter}, str::FromStr};
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialOrd, PartialEq)]
 pub struct Token {
@@ -58,6 +58,7 @@ pub enum TokenKind {
     If,
     Else,
     Return,
+    Set,
 }
 
 impl fmt::Display for TokenKind {
@@ -97,6 +98,7 @@ impl fmt::Display for TokenKind {
             TokenKind::Colon => write!(f, ":"),
             TokenKind::Percent => write!(f, "%"),
             TokenKind::Ampersand => write!(f, "&"),
+            TokenKind::Set => write!(f, "set"),
         }
     }
 }
@@ -143,6 +145,14 @@ impl fmt::Display for Float {
 impl From<f64> for Float {
     fn from(f: f64) -> Self {
         Self(f64::to_bits(f))
+    }
+}
+
+impl FromStr for Float {
+    type Err = std::num::ParseFloatError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        s.parse::<f64>().map(Float::from)
     }
 }
 

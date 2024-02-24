@@ -1,4 +1,3 @@
-use lexer::token::TokenKind;
 use lexer::lexer::Lexer;
 use std::io::stdin;
 

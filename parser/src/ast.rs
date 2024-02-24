@@ -90,7 +90,7 @@ pub struct LetStatement {
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct LetDereferenceStatement {
-    pub name: String,
+    pub name: Identifier,
     pub value: Expression,
 }
 
@@ -113,7 +113,7 @@ impl fmt::Display for Identifier {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Ord, PartialOrd)]
 pub enum Expression {
-    Identifier(String),
+    Identifier(Identifier),
     Integer(Integer),
     Float(Float),
     Boolean(bool),
@@ -236,13 +236,14 @@ impl fmt::Display for IfExpression {
 
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct FunctionLiteral {
-    pub parameters: Vec<String>,
+    pub parameters: Vec<Identifier>,
     pub body: BlockStatement,
 }
 
 impl fmt::Display for FunctionLiteral {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "fn({}) {{ {} }}", self.parameters.join(", "), self.body)
+        let params: Vec<String> = self.parameters.iter().map(|p| p.to_string()).collect();
+        write!(f, "fn({}) {{ {} }}", params.join(", "), self.body)
     }
 }
 
