@@ -38,20 +38,20 @@ pub enum TokenKind {
     LT,
     GT,
 
-    EQ,
-    NotEq,
+    Equal,
+    NotEqual,
 
     // Delimiters
     Comma,
     Semicolon,
     Colon,
 
-    LParen,
-    RParen,
-    LBrace,
-    RBrace,
-    LBracket,
-    RBracket,
+    LeftParen,
+    RightParen,
+    LeftBrace,
+    RightBrace,
+    LeftBracket,
+    RightBracket,
 
     // Keywords
     Function,
@@ -79,16 +79,16 @@ impl fmt::Display for TokenKind {
             TokenKind::Slash => write!(f, "/"),
             TokenKind::LT => write!(f, "<"),
             TokenKind::GT => write!(f, ">"),
-            TokenKind::EQ => write!(f, "=="),
-            TokenKind::NotEq => write!(f, "!="),
+            TokenKind::Equal => write!(f, "=="),
+            TokenKind::NotEqual => write!(f, "!="),
             TokenKind::Comma => write!(f, ","),
             TokenKind::Semicolon => write!(f, ";"),
-            TokenKind::LParen => write!(f, "("),
-            TokenKind::RParen => write!(f, ")"),
-            TokenKind::LBrace => write!(f, "{{"),
-            TokenKind::RBrace => write!(f, "}}"),
-            TokenKind::LBracket => write!(f, "["),
-            TokenKind::RBracket => write!(f, "]"),
+            TokenKind::LeftParen => write!(f, "("),
+            TokenKind::RightParen => write!(f, ")"),
+            TokenKind::LeftBrace => write!(f, "{{"),
+            TokenKind::RightBrace => write!(f, "}}"),
+            TokenKind::LeftBracket => write!(f, "["),
+            TokenKind::RightBracket => write!(f, "]"),
             TokenKind::Function => write!(f, "fn"),
             TokenKind::Let => write!(f, "let"),
             TokenKind::True => write!(f, "true"),
@@ -144,7 +144,6 @@ impl fmt::Display for Float {
     }
 }
 
-/// Convert from `Float` into `f64`.
 impl From<f64> for Float {
     fn from(f: f64) -> Self {
         Self(f64::to_bits(f))
@@ -159,7 +158,6 @@ impl FromStr for Float {
     }
 }
 
-/// Convert from `f64` into `Float`.
 impl From<Float> for f64 {
     fn from(f: Float) -> Self {
         f64::from_bits(f.0)

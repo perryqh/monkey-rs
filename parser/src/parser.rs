@@ -31,8 +31,8 @@ pub enum Precedence {
 
 fn precedence_from_token(tok: &Token) -> Precedence {
     match &tok.kind {
-        TokenKind::EQ => Precedence::Equals,
-        TokenKind::NotEq => Precedence::Equals,
+        TokenKind::Equal => Precedence::Equals,
+        TokenKind::NotEqual => Precedence::Equals,
         TokenKind::LT => Precedence::LessGreater,
         TokenKind::GT => Precedence::LessGreater,
         TokenKind::Plus => Precedence::Sum,
@@ -40,8 +40,8 @@ fn precedence_from_token(tok: &Token) -> Precedence {
         TokenKind::Slash => Precedence::Product,
         TokenKind::Asterisk => Precedence::Product,
         TokenKind::Percent => Precedence::Product,
-        TokenKind::LParen => Precedence::Call,
-        TokenKind::LBracket => Precedence::Index,
+        TokenKind::LeftParen => Precedence::Call,
+        TokenKind::LeftBracket => Precedence::Index,
 
         _ => Precedence::Lowest,
     }
@@ -128,12 +128,12 @@ impl Parser {
             | TokenKind::Asterisk
             | TokenKind::Slash
             | TokenKind::Percent
-            | TokenKind::EQ
-            | TokenKind::NotEq
+            | TokenKind::Equal
+            | TokenKind::NotEqual
             | TokenKind::LT
             | TokenKind::GT => Some(self.parse_infix_expression(left)),
-            TokenKind::LParen => Some(self.parse_call_expression(left)),
-            TokenKind::LBracket => Some(self.parse_index_expression(left)),
+            TokenKind::LeftParen => Some(self.parse_call_expression(left)),
+            TokenKind::LeftBracket => Some(self.parse_index_expression(left)),
 
             _ => None,
         }
@@ -148,7 +148,7 @@ impl Parser {
             index: Box::new(self.parse_expression(Precedence::Lowest)?),
         });
 
-        self.expect_peek_advance(&TokenKind::RBracket)?;
+        self.expect_peek_advance(&TokenKind::RightBracket)?;
 
         Ok(idx)
     }
@@ -157,7 +157,7 @@ impl Parser {
         let mut statements = vec![];
 
         self.next_token()?;
-        while self.current_token_is_not(&TokenKind::RBrace)
+        while self.current_token_is_not(&TokenKind::RightBrace)
             && self.current_token_is_not(&TokenKind::EOF)
         {
             let stmt = self.parse_statement()?;
@@ -171,7 +171,7 @@ impl Parser {
     fn parse_call_expression(&mut self, left: &Expression) -> Result<Expression> {
         self.next_token()?;
 
-        if self.peek_token_is(&TokenKind::RParen) {
+        if self.peek_token_is(&TokenKind::RightParen) {
             self.next_token()?;
             return Ok(Expression::Call(CallExpression {
                 function: Box::new(left.clone()),
@@ -179,7 +179,7 @@ impl Parser {
             }));
         }
 
-        let arguments = self.parse_expression_list(&TokenKind::RParen)?;
+        let arguments = self.parse_expression_list(&TokenKind::RightParen)?;
 
         Ok(Expression::Call(CallExpression {
             function: Box::new(left.clone()),
@@ -245,47 +245,47 @@ impl Parser {
             TokenKind::Bang | TokenKind::Minus | TokenKind::Ampersand | TokenKind::Asterisk => {
                 self.parse_prefix_expression()
             }
-            TokenKind::LParen => self.parse_grouped_expression(),
-            TokenKind::LBracket => {
-                let elements = self.parse_expression_list(&TokenKind::RBracket)?;
+            TokenKind::LeftParen => self.parse_grouped_expression(),
+            TokenKind::LeftBracket => {
+                let elements = self.parse_expression_list(&TokenKind::RightBracket)?;
                 Ok(Expression::Array(ArrayLiteral { elements }))
             }
-            TokenKind::LBrace => self.parse_hash_literal(),
+            TokenKind::LeftBrace => self.parse_hash_literal(),
             TokenKind::If => self.parse_if_expression(),
             TokenKind::Function => self.parse_function_literal(),
             TokenKind::Set => self.parse_set_literal(),
             _ => bail!(
-                "want: {}, got: {}",
+                "want: {}, got: {:?}",
                 "matching prefix parse function",
-                self.current_token.as_ref().unwrap().kind
+                self.current_token.as_ref()
             ),
         }
     }
 
     fn parse_set_literal(&mut self) -> Result<Expression> {
         let mut set = vec![];
-        self.expect_peek_advance(&TokenKind::LBrace)?;
+        self.expect_peek_advance(&TokenKind::LeftBrace)?;
 
-        while self.peek_token_is_not(&TokenKind::RBrace) {
+        while self.peek_token_is_not(&TokenKind::RightBrace) {
             self.next_token()?;
 
             set.push(self.parse_expression(Precedence::Lowest)?);
 
-            if self.peek_token_is_not(&TokenKind::RBrace) {
+            if self.peek_token_is_not(&TokenKind::RightBrace) {
                 self.expect_peek_advance(&TokenKind::Comma)?;
             }
         }
 
-        self.expect_peek_advance(&TokenKind::RBrace)?;
+        self.expect_peek_advance(&TokenKind::RightBrace)?;
         Ok(Expression::Set(SetLiteral { set }))
     }
 
     fn parse_function_literal(&mut self) -> Result<Expression> {
-        self.expect_peek_advance(&TokenKind::LParen)?;
+        self.expect_peek_advance(&TokenKind::LeftParen)?;
 
         let parameters = self.parse_function_parameters()?;
 
-        self.expect_peek_advance(&TokenKind::LBrace)?;
+        self.expect_peek_advance(&TokenKind::LeftBrace)?;
 
         let body = if let Statement::Block(block) = self.parse_block_statement()? {
             block
@@ -301,7 +301,7 @@ impl Parser {
     fn parse_function_parameters(&mut self) -> Result<Vec<Identifier>> {
         let mut params = vec![];
 
-        if self.peek_token_is(&TokenKind::RParen) {
+        if self.peek_token_is(&TokenKind::RightParen) {
             self.next_token()?;
             return Ok(params);
         }
@@ -316,19 +316,19 @@ impl Parser {
             params.push(self.parse_identifier()?);
         }
 
-        self.expect_peek_advance(&TokenKind::RParen)?;
+        self.expect_peek_advance(&TokenKind::RightParen)?;
 
         Ok(params)
     }
 
     fn parse_if_expression(&mut self) -> Result<Expression> {
-        self.expect_peek_advance(&TokenKind::LParen)?;
+        self.expect_peek_advance(&TokenKind::LeftParen)?;
         self.next_token()?;
 
         let condition = Box::new(self.parse_expression(Precedence::Lowest)?);
 
-        self.expect_peek_advance(&TokenKind::RParen)?;
-        self.expect_peek_advance(&TokenKind::LBrace)?;
+        self.expect_peek_advance(&TokenKind::RightParen)?;
+        self.expect_peek_advance(&TokenKind::LeftBrace)?;
 
         let consequence = if let Statement::Block(block) = self.parse_block_statement()? {
             block
@@ -348,7 +348,7 @@ impl Parser {
         }
 
         self.next_token()?;
-        self.expect_peek_advance(&TokenKind::LBrace)?;
+        self.expect_peek_advance(&TokenKind::LeftBrace)?;
 
         let alternative = if let Statement::Block(block) = self.parse_block_statement()? {
             Some(block)
@@ -373,7 +373,7 @@ impl Parser {
         let right = Box::new(self.parse_expression(Precedence::Prefix)?);
 
         Ok(Expression::Prefix(PrefixExpression {
-            operator: operator_kind,
+            operator: operator_kind.clone(),
             right,
         }))
     }
@@ -383,14 +383,14 @@ impl Parser {
 
         let expr = self.parse_expression(Precedence::Lowest)?;
 
-        self.expect_peek_advance(&TokenKind::RParen)?;
+        self.expect_peek_advance(&TokenKind::RightParen)?;
 
         Ok(expr)
     }
 
     fn parse_hash_literal(&mut self) -> Result<Expression> {
         let mut pairs = vec![];
-        while self.peek_token_is_not(&TokenKind::RBrace) {
+        while self.peek_token_is_not(&TokenKind::RightBrace) {
             self.next_token()?;
 
             let key = self.parse_expression(Precedence::Lowest)?;
@@ -401,12 +401,12 @@ impl Parser {
 
             pairs.push((key, value));
 
-            if self.peek_token_is_not(&TokenKind::RBrace) {
+            if self.peek_token_is_not(&TokenKind::RightBrace) {
                 self.expect_peek_advance(&TokenKind::Comma)?;
             }
         }
 
-        self.expect_peek_advance(&TokenKind::RBrace)?;
+        self.expect_peek_advance(&TokenKind::RightBrace)?;
 
         Ok(Expression::Hash(HashLiteral { pairs }))
     }
@@ -465,12 +465,10 @@ impl Parser {
         let token = self
             .peek_token()
             .ok_or_else(|| anyhow::anyhow!("expected token"))?;
-        match &token.kind {
-            TokenKind::Identifier(_) => {
-                self.next_token()?;
-                Ok(())
-            }
-            _ => bail!("expected Identifier token"),
+        if let TokenKind::Identifier(_) = &token.kind {
+            Ok(())
+        } else {
+            bail!("expected Identifier token");
         }
     }
 
@@ -755,8 +753,8 @@ mod tests {
             ("5 % 5;", TokenKind::Percent),
             ("5 > 5;", TokenKind::GT),
             ("5 < 5;", TokenKind::LT),
-            ("5 == 5;", TokenKind::EQ),
-            ("5 != 5;", TokenKind::NotEq),
+            ("5 == 5;", TokenKind::Equal),
+            ("5 != 5;", TokenKind::NotEqual),
         ];
 
         for (input, want_op) in tests {
@@ -780,9 +778,9 @@ mod tests {
         let efalse = Expression::Boolean(false);
 
         let tests = vec![
-            ("true == true", &etrue, TokenKind::EQ, &etrue),
-            ("true != false", &etrue, TokenKind::NotEq, &efalse),
-            ("false == false", &efalse, TokenKind::EQ, &efalse),
+            ("true == true", &etrue, TokenKind::Equal, &etrue),
+            ("true != false", &etrue, TokenKind::NotEqual, &efalse),
+            ("false == false", &efalse, TokenKind::Equal, &efalse),
         ];
 
         for (input, want_left, want_op, want_right) in tests {

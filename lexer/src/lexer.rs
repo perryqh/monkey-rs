@@ -85,24 +85,24 @@ impl<'a> Lexer<'a> {
             '=' => {
                 if let Some(&'=') = self.chars.peek() {
                     self.chars.next();
-                    Token::new(TokenKind::EQ)
+                    Token::new(TokenKind::Equal)
                 } else {
                     Token::new(TokenKind::Assign)
                 }
             }
             ';' => Token::new(TokenKind::Semicolon),
-            '(' => Token::new(TokenKind::LParen),
-            ')' => Token::new(TokenKind::RParen),
+            '(' => Token::new(TokenKind::LeftParen),
+            ')' => Token::new(TokenKind::RightParen),
             ',' => Token::new(TokenKind::Comma),
             '+' => Token::new(TokenKind::Plus),
-            '{' => Token::new(TokenKind::LBrace),
-            '}' => Token::new(TokenKind::RBrace),
-            '[' => Token::new(TokenKind::LBracket),
-            ']' => Token::new(TokenKind::RBracket),
+            '{' => Token::new(TokenKind::LeftBrace),
+            '}' => Token::new(TokenKind::RightBrace),
+            '[' => Token::new(TokenKind::LeftBracket),
+            ']' => Token::new(TokenKind::RightBracket),
             '!' => {
                 if let Some(&'=') = self.chars.peek() {
                     self.chars.next();
-                    Token::new(TokenKind::NotEq)
+                    Token::new(TokenKind::NotEqual)
                 } else {
                     Token::new(TokenKind::Bang)
                 }
@@ -155,15 +155,15 @@ mod tests {
         let expected_tokens = vec![
             TokenKind::Assign,
             TokenKind::Plus,
-            TokenKind::LParen,
-            TokenKind::RParen,
-            TokenKind::LBrace,
-            TokenKind::RBrace,
+            TokenKind::LeftParen,
+            TokenKind::RightParen,
+            TokenKind::LeftBrace,
+            TokenKind::RightBrace,
             TokenKind::Comma,
             TokenKind::Semicolon,
             TokenKind::Bang,
-            TokenKind::LBracket,
-            TokenKind::RBracket,
+            TokenKind::LeftBracket,
+            TokenKind::RightBracket,
             TokenKind::EOF,
         ];
         let mut lexer = Lexer::new(input);
@@ -219,17 +219,17 @@ mod tests {
             TokenKind::Identifier("add".to_string()),
             TokenKind::Assign,
             TokenKind::Function,
-            TokenKind::LParen,
+            TokenKind::LeftParen,
             TokenKind::Identifier("x".to_string()),
             TokenKind::Comma,
             TokenKind::Identifier("y".to_string()),
-            TokenKind::RParen,
-            TokenKind::LBrace,
+            TokenKind::RightParen,
+            TokenKind::LeftBrace,
             TokenKind::Identifier("x".to_string()),
             TokenKind::Plus,
             TokenKind::Identifier("y".to_string()),
             TokenKind::Semicolon,
-            TokenKind::RBrace,
+            TokenKind::RightBrace,
             TokenKind::Semicolon,
             TokenKind::EOF,
         ];
@@ -246,40 +246,40 @@ mod tests {
         let input = "if (5 != 10) { return true; } else if (3 == 3) { return false; }";
         let expected_tokens = vec![
             TokenKind::If,
-            TokenKind::LParen,
+            TokenKind::LeftParen,
             TokenKind::Integer(Integer {
                 value: 5,
                 radix: Radix::Decimal,
             }),
-            TokenKind::NotEq,
+            TokenKind::NotEqual,
             TokenKind::Integer(Integer {
                 value: 10,
                 radix: Radix::Decimal,
             }),
-            TokenKind::RParen,
-            TokenKind::LBrace,
+            TokenKind::RightParen,
+            TokenKind::LeftBrace,
             TokenKind::Return,
             TokenKind::True,
             TokenKind::Semicolon,
-            TokenKind::RBrace,
+            TokenKind::RightBrace,
             TokenKind::Else,
             TokenKind::If,
-            TokenKind::LParen,
+            TokenKind::LeftParen,
             TokenKind::Integer(Integer {
                 value: 3,
                 radix: Radix::Decimal,
             }),
-            TokenKind::EQ,
+            TokenKind::Equal,
             TokenKind::Integer(Integer {
                 value: 3,
                 radix: Radix::Decimal,
             }),
-            TokenKind::RParen,
-            TokenKind::LBrace,
+            TokenKind::RightParen,
+            TokenKind::LeftBrace,
             TokenKind::Return,
             TokenKind::False,
             TokenKind::Semicolon,
-            TokenKind::RBrace,
+            TokenKind::RightBrace,
             TokenKind::EOF,
         ];
         let mut lexer = Lexer::new(input);
@@ -296,22 +296,22 @@ mod tests {
         let expected_tokens = vec![
             TokenKind::Assign,
             TokenKind::Plus,
-            TokenKind::LParen,
-            TokenKind::RParen,
-            TokenKind::LBrace,
-            TokenKind::RBrace,
+            TokenKind::LeftParen,
+            TokenKind::RightParen,
+            TokenKind::LeftBrace,
+            TokenKind::RightBrace,
             TokenKind::Comma,
             TokenKind::Semicolon,
             TokenKind::Bang,
-            TokenKind::LBracket,
-            TokenKind::RBracket,
+            TokenKind::LeftBracket,
+            TokenKind::RightBracket,
             TokenKind::Minus,
             TokenKind::Asterisk,
             TokenKind::Slash,
             TokenKind::LT,
             TokenKind::GT,
-            TokenKind::EQ,
-            TokenKind::NotEq,
+            TokenKind::Equal,
+            TokenKind::NotEqual,
             TokenKind::EOF,
         ];
         let mut lexer = Lexer::new(input);
@@ -380,28 +380,28 @@ if (5 < 10) {
             TokenKind::Identifier("add".to_string()),
             TokenKind::Assign,
             TokenKind::Function,
-            TokenKind::LParen,
+            TokenKind::LeftParen,
             TokenKind::Identifier("x".to_string()),
             TokenKind::Comma,
             TokenKind::Identifier("y".to_string()),
-            TokenKind::RParen,
-            TokenKind::LBrace,
+            TokenKind::RightParen,
+            TokenKind::LeftBrace,
             TokenKind::Identifier("x".to_string()),
             TokenKind::Plus,
             TokenKind::Identifier("y".to_string()),
             TokenKind::Semicolon,
-            TokenKind::RBrace,
+            TokenKind::RightBrace,
             TokenKind::Semicolon,
             //
             TokenKind::Let,
             TokenKind::Identifier("result".to_string()),
             TokenKind::Assign,
             TokenKind::Identifier("add".to_string()),
-            TokenKind::LParen,
+            TokenKind::LeftParen,
             TokenKind::Identifier("five".to_string()),
             TokenKind::Comma,
             TokenKind::Identifier("ten".to_string()),
-            TokenKind::RParen,
+            TokenKind::RightParen,
             TokenKind::Semicolon,
             //
             TokenKind::Bang,
@@ -431,7 +431,7 @@ if (5 < 10) {
             TokenKind::Semicolon,
             //
             TokenKind::If,
-            TokenKind::LParen,
+            TokenKind::LeftParen,
             TokenKind::Integer(Integer {
                 radix: Radix::Decimal,
                 value: 5,
@@ -441,24 +441,24 @@ if (5 < 10) {
                 radix: Radix::Decimal,
                 value: 10,
             }),
-            TokenKind::RParen,
-            TokenKind::LBrace,
+            TokenKind::RightParen,
+            TokenKind::LeftBrace,
             TokenKind::Return,
             TokenKind::True,
             TokenKind::Semicolon,
-            TokenKind::RBrace,
+            TokenKind::RightBrace,
             TokenKind::Else,
-            TokenKind::LBrace,
+            TokenKind::LeftBrace,
             TokenKind::Return,
             TokenKind::False,
             TokenKind::Semicolon,
-            TokenKind::RBrace,
+            TokenKind::RightBrace,
             //
             TokenKind::Integer(Integer {
                 radix: Radix::Decimal,
                 value: 10,
             }),
-            TokenKind::EQ,
+            TokenKind::Equal,
             TokenKind::Integer(Integer {
                 radix: Radix::Decimal,
                 value: 10,
@@ -469,7 +469,7 @@ if (5 < 10) {
                 radix: Radix::Decimal,
                 value: 10,
             }),
-            TokenKind::NotEq,
+            TokenKind::NotEqual,
             TokenKind::Integer(Integer {
                 radix: Radix::Decimal,
                 value: 9,
@@ -492,7 +492,7 @@ if (5 < 10) {
             TokenKind::String("foobar".to_string()),
             TokenKind::String("foo bar".to_string()),
             //
-            TokenKind::LBracket,
+            TokenKind::LeftBracket,
             TokenKind::Integer(Integer {
                 radix: Radix::Decimal,
                 value: 1,
@@ -502,14 +502,14 @@ if (5 < 10) {
                 radix: Radix::Decimal,
                 value: 2,
             }),
-            TokenKind::RBracket,
+            TokenKind::RightBracket,
             TokenKind::Semicolon,
             //
-            TokenKind::LBrace,
+            TokenKind::LeftBrace,
             TokenKind::String("foo".to_string()),
             TokenKind::Colon,
             TokenKind::String("bar".to_string()),
-            TokenKind::RBrace,
+            TokenKind::RightBrace,
             //
             TokenKind::Ampersand,
             TokenKind::Identifier("five".to_string()),

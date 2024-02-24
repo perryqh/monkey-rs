@@ -2,12 +2,12 @@ use lexer::lexer::Lexer;
 use std::io::stdin;
 
 // REPL
-pub fn main() {
+pub fn main() -> anyhow::Result<()> {
     println!("Welcome to monkey lexer REPL! Press Ctrl+C to exit.");
 
     loop {
         let mut input = String::new();
-        stdin().read_line(&mut input).unwrap();
+        stdin().read_line(&mut input)?;
 
         if input.trim_end().is_empty() {
             println!("bye!");
