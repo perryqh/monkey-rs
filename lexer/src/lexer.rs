@@ -67,6 +67,9 @@ impl<'a> Lexer<'a> {
         let mut literal = initial_char.to_string();
         literal.push_str(&self.consume_while(|c| c.is_numeric() || c == '.'));
         if literal.contains('.') {
+            if literal.matches('.').count() > 1 {
+                return Token::new(TokenKind::Illegal);
+            }
             Token::new(TokenKind::Float(
                 literal.parse().unwrap_or_else(|_| Float::from(0.0)),
             ))

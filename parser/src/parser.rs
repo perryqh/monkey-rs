@@ -102,7 +102,6 @@ impl Parser {
         if is_pointer {
             self.next_token()?;
         }
-        //self.expect_identifier_peek()?;
         let name = self.parse_identifier()?;
         self.expect_peek_advance(&TokenKind::Assign)?;
         self.next_token()?;
@@ -461,17 +460,6 @@ impl Parser {
         !self.peek_token_is(kind)
     }
 
-    fn expect_identifier_peek(&mut self) -> Result<()> {
-        let token = self
-            .peek_token()
-            .ok_or_else(|| anyhow::anyhow!("expected token"))?;
-        if let TokenKind::Identifier(_) = &token.kind {
-            Ok(())
-        } else {
-            bail!("expected Identifier token");
-        }
-    }
-
     fn expect_peek_advance(&mut self, kind: &TokenKind) -> Result<()> {
         if self.peek_token_is(kind) {
             self.next_token()?;
@@ -490,12 +478,6 @@ impl Parser {
     fn current_token_kind(&self) -> Result<&TokenKind> {
         self.current_token
             .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("expected token"))
-            .map(|t| &t.kind)
-    }
-
-    fn peek_token_kind(&mut self) -> Result<&TokenKind> {
-        self.peek_token()
             .ok_or_else(|| anyhow::anyhow!("expected token"))
             .map(|t| &t.kind)
     }
