@@ -200,7 +200,6 @@ impl fmt::Display for PrefixExpression {
     }
 }
 
-/// An infix expression such as a mathematical computation.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct InfixExpression {
     pub left: Box<Expression>,
@@ -214,7 +213,6 @@ impl fmt::Display for InfixExpression {
     }
 }
 
-/// An expression comprised of an if/else block.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct IfExpression {
     pub condition: Box<Expression>,
@@ -247,7 +245,6 @@ impl fmt::Display for FunctionLiteral {
     }
 }
 
-/// A function call expression.
 #[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct CallExpression {
     pub function: Box<Expression>,
@@ -277,7 +274,6 @@ impl fmt::Display for IndexExpression {
     }
 }
 
-/// A hash literal expression.
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct HashLiteral {
     pub pairs: Vec<(Expression, Expression)>,
